@@ -1,0 +1,628 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{bussproofs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage[margin=0.5in]{geometry}
+
+\title{Introduction to Homotopy Type Theory}
+\author{Nguyen Tan Tai}
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Dependent type theory}
+\subsection{Element conversion}
+\subsubsection{Element conversion rule}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash A \doteq A' \mathrel{type}$}
+    \UnaryInfC{$\Gamma \vdash A' \doteq A \mathrel{type}$}
+    \AxiomC{$\Gamma \vdash A \mathrel{type}$}
+    \UnaryInfC{$\Gamma, x:A' \vdash x:A'$}
+    \BinaryInfC{$\Gamma, x:A \vdash x:A'$}
+    \AxiomC{$\Gamma \vdash a:A$}
+    \BinaryInfC{$\Gamma \vdash a:A'$}
+\end{prooftree}
+\subsubsection{Congruence rule for element conversion}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash A \doteq A' \mathrel{type}$}
+    \UnaryInfC{$\Gamma \vdash A' \doteq A \mathrel{type}$}
+    \AxiomC{$\Gamma \vdash A \mathrel{type}$}
+    \UnaryInfC{$\Gamma, x:A' \vdash x:A'$}
+    \BinaryInfC{$\Gamma, x:A \vdash x:A'$}
+    \AxiomC{$\Gamma \vdash a \doteq b:A$}
+    \BinaryInfC{$\Gamma \vdash a \doteq b:A'$}
+\end{prooftree}
+\section{Dependent function types}
+\subsection{Extensionality principle}
+
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash f : \prod_{(x:A)}B(x)$}
+    \UnaryInfC{$\Gamma \vdash \lambda x.f(x) \doteq f : \prod_{(x:A)}B(x)$}
+    \UnaryInfC{$\Gamma \vdash f \doteq \lambda x.f(x) : \prod_{(x:A)}B(x)$}
+    \AxiomC{\vdots}
+    \UnaryInfC{$\Gamma \vdash \lambda x.f(x) \doteq g : \prod_{(x:A)}B(x)$}
+    \BinaryInfC{$\Gamma \vdash f \doteq g : \prod_{(x:A)}B(x)$}
+\end{prooftree}
+
+\begin{prooftree}
+    \AxiomC{$\Gamma, x : A \vdash f(x) \doteq g$}
+    \UnaryInfC{$\Gamma \vdash \lambda x.f(x) \doteq \lambda x.g$}
+    \AxiomC{$\Gamma \vdash g : \prod_{(x:A)}B(x)$}
+    \UnaryInfC{$\Gamma \vdash \lambda x.g(x) \doteq g : \prod_{(x:A)}B(x)$}
+    \BinaryInfC{$\Gamma \vdash \lambda x.f(x) \doteq g : \prod_{(x:A)}B(x)$}
+\end{prooftree}
+
+\subsection{Right unit law}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash A \mathrel{type}$}
+    \UnaryInfC{$\Gamma, x:A \vdash id_A(x) \doteq x:A$}
+    \AxiomC{$\Gamma \vdash f:A \to B$}
+    \UnaryInfC{$\Gamma, x':A \vdash f(x'):B$}
+    \BinaryInfC{$\Gamma, x:A \vdash f(id_A(x)) \doteq f(x):B$}
+    \UnaryInfC{$\Gamma \vdash \lambda x.f(id_A(x)) \doteq \lambda x.f(x):B$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{\vdots}
+    \UnaryInfC{$\Gamma \vdash \lambda x.f(id_A(x)) \doteq \lambda x.f(x):B$}
+    \AxiomC{$\Gamma \vdash f:A \to B$}
+    \UnaryInfC{$\Gamma \vdash \lambda x.f(x) \doteq f:A \to B$}
+    \BinaryInfC{$\Gamma \vdash \lambda x.f(id_A(x)) \doteq f:A \to B$}
+    \UnaryInfC{$\Gamma \vdash f \circ id_A \doteq f:A \to B$}
+\end{prooftree}
+\subsection{Constant map}
+\subsubsection{Construction}
+
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash B \mathrel{type}$}
+    \UnaryInfC{$\Gamma, y : B \vdash y : B$}
+    \AxiomC{$\Gamma \vdash A \mathrel{type}$}
+    \BinaryInfC{$\Gamma, y : B, x : A \vdash y:B$}
+    \UnaryInfC{$\Gamma, y:B \vdash \lambda x.y : A \to B$}
+    \UnaryInfC{$\Gamma, y:B \vdash const_y \coloneqq \lambda x.y : A \to B$}
+\end{prooftree}
+
+\subsubsection{Right composition}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash B \mathrel{type}$}
+    \UnaryInfC{$\Gamma, z : C \vdash const_z \doteq \lambda y.z : B \to C$}
+    \UnaryInfC{$\Gamma, z:C, y:B \vdash const_z(y) \doteq (\lambda y.z)(y)$}
+    \AxiomC{$\Gamma \vdash C \mathrel{type}$}
+    \UnaryInfC{$\Gamma, y:B, z:C \vdash (\lambda y.z)(y) \doteq z : B$}
+    \BinaryInfC{$\Gamma, z:C, y:B \vdash const_z(y) \doteq z : C$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{\vdots}
+    \UnaryInfC{$\Gamma, z:C, y:B \vdash const_z(y) \doteq z : C$}
+    \AxiomC{$\Gamma \vdash f: A \to B$}
+    \UnaryInfC{$\Gamma, x:A \vdash f(x) : B$}
+    \BinaryInfC{$\Gamma, z:C, x:A \vdash const_z(f(x)) \doteq z : C$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{\vdots}
+    \UnaryInfC{$\Gamma, z:C, x:A \vdash const_z(f(x)) \doteq z : C$}
+    \AxiomC{\vdots}
+    \UnaryInfC{$\Gamma, z:C, x:A \vdash const_z(x) \doteq z : C$}
+    \BinaryInfC{$\Gamma, z:C, x:A \vdash const_z(f(x)) \doteq const_z(x) : C$}
+    \UnaryInfC{$\Gamma, z:C \vdash \lambda x.const_z(f(x)) \doteq \lambda x.const_z(x) : A \to C$}
+    \UnaryInfC{$\Gamma, z:C \vdash const_z \circ f \doteq const_z : A \to C$}
+\end{prooftree}
+\subsubsection{Left composition}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash A \mathrel{type}$}
+    \AxiomC{$\Gamma \vdash B \mathrel{type}$}
+    \BinaryInfC{$\Gamma, y:B, x:A\vdash const_y(x) \doteq y:B$}
+    \AxiomC{$\Gamma \vdash g:B \to C$}
+    \UnaryInfC{$\Gamma, y':B \vdash f(y'):C$}
+    \BinaryInfC{$\Gamma, y:B, x:A\vdash g(const_y(x)) \doteq g(y) : C$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash A \mathrel{type}$}
+    \AxiomC{$\Gamma \vdash C \mathrel{type}$}
+    \BinaryInfC{$\Gamma, z:C, x:A\vdash const_{z}(x) \doteq z:C$}
+    \AxiomC{$\Gamma \vdash g:B \to C$}
+    \UnaryInfC{$\Gamma, y:B \vdash g(y):C$}
+    \BinaryInfC{$\Gamma, y:B, x:A\vdash const_{g(y)}(x) \doteq g(y):C$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{\vdots}
+    \UnaryInfC{$\Gamma, y:B, x:A\vdash g(const_y(x)) \doteq g(y) : C$}
+    \AxiomC{\vdots}
+    \UnaryInfC{$\Gamma, y:B, x:A\vdash const_{g(y)}(x) \doteq g(y):C$}
+    \BinaryInfC{$\Gamma, y:B, x:A\vdash g(const_y(x)) \doteq const_{g(y)}(x):C$}
+    \UnaryInfC{$\Gamma, y:B,\vdash \lambda x.g(const_y(x)) \doteq \lambda x.const_{g(y)}(x):C$}
+    \UnaryInfC{$\Gamma, y:B\vdash g \circ const_y \doteq const_{g(y)}:A \to C$}
+\end{prooftree}
+\subsection{Swap function}
+\subsubsection{Construction}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash A \mathrel{type}$}
+    \AxiomC{$\Gamma \vdash B \mathrel{type}$}
+    \AxiomC{$\Gamma, x:A, y:B \vdash C(x,y) \mathrel{type}$}
+    \BinaryInfC{$\Gamma, x:A \vdash \prod_{(y:B)}C(x,y) \mathrel{type}$}
+    \BinaryInfC{$\Gamma \vdash \prod_{(x:A)}\prod_{(y:B)}C(x,y) \mathrel{type}$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y) \vdash f:\prod_{(x:A)}\prod_{(y:B)}C(x,y)$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y), x:A \vdash f(x):\prod_{(y:B)}C(x,y)$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y), x:A, y:B \vdash f(x,y):C(x,y)$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y), y:B, x:A \vdash f(x,y):C(x,y)$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y), y:B \vdash \lambda x.f(x,y):\prod_{(x:A)}C(x,y)$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y)\vdash \lambda y.\lambda x.f(x,y):\prod_{(y:B)}\prod_{(x:A)}C(x,y)$}
+    \UnaryInfC{$\Gamma \vdash \lambda f.\lambda y.\lambda x.f(x,y):(\prod_{(x:A)}\prod_{(y:B)}C(x,y)) \to (\prod_{(y:B)}\prod_{(x:A)}C(x,y))$}
+    \UnaryInfC{$\Gamma \vdash \sigma \coloneqq \lambda f.\lambda y.\lambda x.f(x,y):(\prod_{(x:A)}\prod_{(y:B)}C(x,y)) \to (\prod_{(y:B)}\prod_{(x:A)}C(x,y))$}
+\end{prooftree}
+\subsubsection{Swap is idempotent}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash A \mathrel{type}$}
+    \AxiomC{$\Gamma \vdash B \mathrel{type}$}
+    \AxiomC{$\Gamma, x:A, y:B \vdash C(x,y) \mathrel{type}$}
+    \TrinaryInfC{$\Gamma \vdash \sigma:(\prod_{(y:B)}\prod_{(x:A)}C(x,y)) \to (\prod_{(x:A)}\prod_{(y:B)}C(x,y))$}
+    \UnaryInfC{$\Gamma, g:\prod_{(y:B)}\prod_{(x:A)}C(x,y) \vdash \sigma(g):\prod_{(x:A)}\prod_{(y:B)}C(x,y)$}
+    \UnaryInfC{\vdots}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash A \mathrel{type}$}
+    \AxiomC{$\Gamma \vdash B \mathrel{type}$}
+    \AxiomC{$\Gamma, x:A, y:B \vdash C(x,y) \mathrel{type}$}
+    \TrinaryInfC{$\Gamma \vdash \sigma \doteq \lambda f.\lambda y.\lambda x.f(x,y):(\prod_{(x:A)}\prod_{(y:B)}C(x,y)) \to (\prod_{(y:B)}\prod_{(x:A)}C(x,y))$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y) \vdash \sigma(f) \doteq \lambda y.\lambda x.f(x,y):\prod_{(y:B)}\prod_{(x:A)}C(x,y)$}
+    \AxiomC{\vdots}
+    \BinaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y) \vdash \sigma(\sigma(f)) \doteq \sigma(\lambda y.\lambda x.f(x,y)):\prod_{(x:A)}\prod_{(y:B)}C(x,y)$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y) \vdash \sigma(\sigma(f)) \doteq \lambda x.\lambda y.f(x,y):\prod_{(x:A)}\prod_{(y:B)}C(x,y)$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y), x:A, y:B \vdash \sigma(\sigma(f,x,y)) \doteq f(x,y):C(x,y)$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y), x:A, y:B \vdash \sigma(\sigma(f,x,y)) \doteq id(f)(x,y):C(x,y)$}
+    \UnaryInfC{$\Gamma, f:\prod_{(x:A)}\prod_{(y:B)}C(x,y) \vdash \sigma(\sigma(f)) \doteq id(f):\prod_{(x:A)}\prod_{(y:B)}C(x,y)$}
+    \UnaryInfC{$\Gamma \vdash \sigma \circ \sigma \doteq id:(\prod_{(x:A)}\prod_{(y:B)}C(x,y)) \to (\prod_{(x:A)}\prod_{(y:B)}C(x,y))$}
+\end{prooftree}
+\section{The natural numbers}
+\subsection{Multiplication and exponentiation}
+\subsubsection{Multiplication}
+\begin{align}
+    mul_{\mathbb{N}}(m,0_{\mathbb{N}}) &\coloneqq 0_{\mathbb{N}} \\
+    mul_{\mathbb{N}}(m, succ_{\mathbb{N}}(n)) &\coloneqq m + mul_{\mathbb{N}}(m,n)
+\end{align}
+\begin{prooftree}
+    \AxiomC{$\vdash \mathbb{N} \mathrel{type}$}
+    \AxiomC{$\vdash \mathbb{N} \mathrel{type}$}
+    \UnaryInfC{$\vdash 0_{\mathbb{N}}:\mathbb{N}$}
+    \BinaryInfC{$m:\mathbb{N} \vdash 0_{\mathbb{N}}:\mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N} \vdash mul\text{-}zero_{\mathbb{N}}(m) \coloneqq 0_{\mathbb{N}}:\mathbb{N}$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\vdash add_{\mathbb{N}}:\mathbb{N} \to \mathbb{N} \to \mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N} \vdash add_{\mathbb{N}}(m):\mathbb{N} \to \mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N}, n:\mathbb{N} \vdash add_{\mathbb{N}}(m):\mathbb{N} \to \mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N} \vdash \lambda n. add_{\mathbb{N}}(m):\mathbb{N} \to \mathbb{N} \to \mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N} \vdash mul\text{-}succ_{\mathbb{N}} \coloneqq \lambda n. add_{\mathbb{N}}(m):\mathbb{N} \to \mathbb{N} \to \mathbb{N}$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{\vdots}
+    \UnaryInfC{$m:\mathbb{N} \vdash mul\text{-}zero_{\mathbb{N}}(m) \coloneqq 0_{\mathbb{N}}:\mathbb{N}$}
+    \AxiomC{\vdots}
+    \UnaryInfC{$m:\mathbb{N} \vdash mul\text{-}succ_{\mathbb{N}} \coloneqq \lambda n. add_{\mathbb{N}}(m):\mathbb{N} \to \mathbb{N} \to \mathbb{N}$}
+    \BinaryInfC{$m:\mathbb{N} \vdash ind_{\mathbb{N}}(mul\text{-}zero_{\mathbb{N}}(m), mul\text{-}succ_{\mathbb{N}}(m)):\mathbb{N} \to \mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N} \vdash mul_{\mathbb{N}}(m) \coloneqq ind_{\mathbb{N}}(mul\text{-}zero_{\mathbb{N}}(m), mul\text{-}succ_{\mathbb{N}}(m)):\mathbb{N} \to \mathbb{N}$}
+\end{prooftree}
+\subsubsection{Exponentiation}
+\begin{align}
+    exp_{\mathbb{N}}(m,0_{\mathbb{N}}) &\coloneqq 1_{\mathbb{N}} \\
+    exp_{\mathbb{N}}(m, succ_{\mathbb{N}}(n)) &\coloneqq m \cdot exp_{\mathbb{N}}(m,n)
+\end{align}
+\begin{prooftree}
+    \AxiomC{$\vdash \mathbb{N} \mathrel{type}$}
+    \AxiomC{$\vdash \mathbb{N} \mathrel{type}$}
+    \UnaryInfC{$\vdash 0_{\mathbb{N}}:\mathbb{N}$}
+    \UnaryInfC{$\vdash 1_{\mathbb{N}}:\mathbb{N}$}
+    \BinaryInfC{$m:\mathbb{N} \vdash 1_{\mathbb{N}}:\mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N} \vdash exp\text{-}zero_{\mathbb{N}}(m) \coloneqq 1_{\mathbb{N}}:\mathbb{N}$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\vdash mul_{\mathbb{N}}:\mathbb{N} \to \mathbb{N} \to \mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N} \vdash mul_{\mathbb{N}}(m):\mathbb{N} \to \mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N}, n:\mathbb{N} \vdash mul_{\mathbb{N}}(m):\mathbb{N} \to \mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N} \vdash \lambda n. mul_{\mathbb{N}}(m):\mathbb{N} \to \mathbb{N} \to \mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N} \vdash exp\text{-}succ_{\mathbb{N}} \coloneqq \lambda n. mul_{\mathbb{N}}(m):\mathbb{N} \to \mathbb{N} \to \mathbb{N}$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{\vdots}
+    \UnaryInfC{$m:\mathbb{N} \vdash exp\text{-}zero_{\mathbb{N}}(m) \coloneqq 0_{\mathbb{N}}:\mathbb{N}$}
+    \AxiomC{\vdots}
+    \UnaryInfC{$m:\mathbb{N} \vdash exp\text{-}succ_{\mathbb{N}} \coloneqq \lambda n. mul_{\mathbb{N}}(m):\mathbb{N} \to \mathbb{N} \to \mathbb{N}$}
+    \BinaryInfC{$m:\mathbb{N} \vdash ind_{\mathbb{N}}(exp\text{-}zero_{\mathbb{N}}(m), exp\text{-}succ_{\mathbb{N}}(m)):\mathbb{N} \to \mathbb{N}$}
+    \UnaryInfC{$m:\mathbb{N} \vdash exp_{\mathbb{N}}(m) \coloneqq ind_{\mathbb{N}}(exp\text{-}zero_{\mathbb{N}}(m), exp\text{-}succ_{\mathbb{N}}(m)):\mathbb{N} \to \mathbb{N}$}
+\end{prooftree}
+\subsection{Min and max functions}
+\subsubsection{Min}
+\begin{align}
+    min_{\mathbb{N}}(0_{\mathbb{N}}, n) &\coloneqq 0_{\mathbb{N}} \\
+    min_{\mathbb{N}}(m,0_{\mathbb{N}}) &\coloneqq 0_{\mathbb{N}}\\
+    min_{\mathbb{N}}(succ_{\mathbb{N}}(m), succ_{\mathbb{N}}(n)) &\coloneqq succ_{\mathbb{N}}(min_{\mathbb{N}}(m,n))
+\end{align}
+$$
+    min_{\mathbb{N}} \doteq ind_{\mathbb{N}}(const_{0_{\mathbb{N}}},\lambda m.\lambda f.\lambda n.ind_{\mathbb{N}}(0_{\mathbb{N}}, \lambda x.\lambda y.succ_{\mathbb{N}}(f(y)),n))
+$$
+\subsubsection{Max}
+\begin{align}
+    max_{\mathbb{N}}(0_{\mathbb{N}}, n) &\coloneqq n \\
+    max_{\mathbb{N}}(m,0_{\mathbb{N}}) &\coloneqq m\\
+    max_{\mathbb{N}}(succ_{\mathbb{N}}(m), succ_{\mathbb{N}}(n)) &\coloneqq succ_{\mathbb{N}}(max_{\mathbb{N}}(m,n))
+\end{align}
+$$
+    max_{\mathbb{N}} \doteq ind_{\mathbb{N}}(id_{\mathbb{N}},\lambda m.\lambda f.\lambda n.ind_{\mathbb{N}}(succ_{\mathbb{N}}(m), \lambda x.\lambda y.succ_{\mathbb{N}}(f(y)),n))
+$$
+\subsection{Iterator}
+\subsubsection{Triangle numbers}
+$$
+    tri \coloneqq ind_{\mathbb{N}}(0_{\mathbb{N}}, \lambda x.\lambda y.succ_{\mathbb{N}}(x) + y)
+$$
+\subsubsection{Factorial}
+$$
+    fac \coloneqq ind_{\mathbb{N}}(0_{\mathbb{N}}, \lambda x.\lambda y.succ_{\mathbb{N}}(x) \cdot y)
+$$
+\subsection{Binomial coefficient}
+$$
+    \binom{-}{-} \coloneqq ind_{\mathbb{N}}(ind_{\mathbb{N}}(1_{\mathbb{N}},\lambda x.\lambda y.0_{\mathbb{N}}), \lambda n.\lambda f.\lambda k.ind_{\mathbb{N}}(1_{\mathbb{N}}, \lambda x.\lambda y.f(x) + f(succ_{\mathbb{N}}(x))))
+$$
+\subsection{Fibonacci sequence}
+$$
+    F \coloneqq \lambda n.pr_1(ind_{\mathbb{N}}((0_{\mathbb{N}},1_{\mathbb{N}}), \lambda n.\lambda p.(pr_2(p),pr_1(p) + pr_2(p)),n)) \mathrel{where:}
+$$
+\begin{align}
+    (-,-) &\coloneqq \lambda a.\lambda b.\lambda f. f(a,b):\mathbb{N} \to \mathbb{N} \to (\mathbb{N} \to \mathbb{N} \to \mathbb{N}) \to \mathbb{N}\\
+    pr_1 &\coloneqq \lambda p.p(\lambda a.\lambda b.a):((\mathbb{N} \to \mathbb{N} \to \mathbb{N}) \to \mathbb{N}) \to \mathbb{N}\\
+    pr_2 &\coloneqq \lambda p.p(\lambda a.\lambda b.b):((\mathbb{N} \to \mathbb{N} \to \mathbb{N}) \to \mathbb{N}) \to \mathbb{N}
+\end{align}
+\subsection{Division by two rounded down}
+\begin{align}
+    div_2(0_{\mathbb{N}}) &\coloneqq 0_{\mathbb{N}} \\
+    div_2(1_{\mathbb{N}}) &\coloneqq 0_{\mathbb{N}} \\
+    div_2(succ_{\mathbb{N}}(succ_{\mathbb{N}}(n))) &\coloneqq succ_{\mathbb{N}}(div_2(n))
+\end{align}
+$$
+    div_2 \coloneqq ind_{\mathbb{N}}(0_{\mathbb{N}},ind_{\mathbb{N}}(0_{\mathbb{N}}, \lambda x.\lambda y. succ_{\mathbb{N}}(y)))
+$$
+\section{More inductive types}
+\subsection{Operations on the Integers}
+\subsubsection{Predecessor}
+\begin{align}
+    pred_{\mathbb{Z}}(-1_{\mathbb{Z}}) &\coloneqq in\text{-}neg(1_{\mathbb{N}}) \\
+    pred_{\mathbb{Z}}(in\text{-}neg(succ_{\mathbb{N}}(n))) &\coloneqq in\text{-}neg(succ_{\mathbb{N}}(succ_{\mathbb{N}}(n))) \\
+    pred_{\mathbb{Z}}(0_{\mathbb{Z}}) &\coloneqq -1_{\mathbb{Z}} \\
+    pred_{\mathbb{Z}}(1_{\mathbb{Z}}) &\coloneqq 0_{\mathbb{Z}} \\
+    pred_{\mathbb{Z}}(in\text{-}pos(succ_{\mathbb{N}}(n))) &\coloneqq in\text{-}pos(n)
+\end{align}
+\subsubsection{Addition and negation}
+\begin{align}
+    add_{\mathbb{Z}}(-1_{\mathbb{Z}},n) &\coloneqq pred_{\mathbb{Z}}(n) \\
+    add_{\mathbb{Z}}(in\text{-}neg(succ_{\mathbb{N}}(m)),n) &\coloneqq pred_{\mathbb{Z}}(add_{\mathbb{Z}}(in\text{-}neg(m),n)) \\
+    add_{\mathbb{Z}}(0_{\mathbb{Z}},n) &\coloneqq n \\
+    add_{\mathbb{Z}}(1_{\mathbb{Z}},n) &\coloneqq succ_{\mathbb{Z}}(n) \\
+    add_{\mathbb{Z}}(in\text{-}pos(succ_{\mathbb{N}}(m)),n) &\coloneqq succ_{\mathbb{Z}}(add(in\text{-}pos(m),n))
+\end{align}
+\begin{align}
+    neg_{\mathbb{Z}}(in\text{-}neg(n)) &\coloneqq in\text{-}pos(n) \\
+    neg_{\mathbb{Z}}(0_{\mathbb{Z}}) &\coloneqq 0_{\mathbb{Z}} \\
+    neg_{\mathbb{Z}}(in\text{-}pos(n)) &\coloneqq in\text{-}neg(n)
+\end{align}
+\subsubsection{Multiplication}
+\begin{align}
+    mul_{\mathbb{Z}}(in\text{-}neg(m),n) &\coloneqq neg_{\mathbb{Z}}(mul(in\text{-}pos(m),n))\\
+    mul_{\mathbb{Z}}(0_{\mathbb{Z}},n) &\coloneqq 0_{\mathbb{Z}} \\
+    mul_{\mathbb{Z}}(1_{\mathbb{Z}},n) &\coloneqq  n\\
+    mul_{\mathbb{Z}}(in\text{-}pos(succ_{\mathbb{N}}(m)),n) &\coloneqq mul_{\mathbb{Z}}(in\text{-}pos(m),n) + n
+\end{align}
+\subsection{Boolean}
+\subsubsection{Negation}
+\begin{prooftree}
+    \AxiomC{$\vdash bool \mathrel{type}$}
+    \UnaryInfC{$\vdash true : bool$}
+    \AxiomC{$\vdash bool \mathrel{type}$}
+    \UnaryInfC{$\vdash false : bool$}
+    \BinaryInfC{$\vdash ind\text{-}bool(true, false):bool \to bool$}
+    \UnaryInfC{$\vdash neg\text{-}bool \coloneqq ind\text{-}bool(true, false) : bool \to bool$}
+\end{prooftree}
+\subsubsection{Conjunction}
+\begin{prooftree}
+    \AxiomC{$\vdash bool \mathrel{type}$}
+    \AxiomC{$\vdash bool \mathrel{type}$}
+    \UnaryInfC{$\vdash false : bool$}
+    \BinaryInfC{$\vdash const_{false} : bool \to bool$}
+    \AxiomC{$\vdash bool \mathrel{type}$}
+    \UnaryInfC{$\vdash id_{bool}:bool \to bool$}
+    \BinaryInfC{$\vdash ind\text{-}bool(const_{false},id_{bool})$}
+    \UnaryInfC{$\vdash -\land- \coloneqq ind\text{-}bool(const_{false},id_{bool})$}
+\end{prooftree}
+\subsubsection{Disjunction}
+\begin{prooftree}
+    \AxiomC{$\vdash bool \mathrel{type}$}
+    \UnaryInfC{$\vdash id_{bool}:bool \to bool$}
+    \AxiomC{$\vdash bool \mathrel{type}$}
+    \AxiomC{$\vdash bool \mathrel{type}$}
+    \UnaryInfC{$\vdash true : bool$}
+    \BinaryInfC{$\vdash const_{true} : bool \to bool$}
+    \BinaryInfC{$\vdash ind\text{-}bool(id_{bool}, const_{true})$}
+    \UnaryInfC{$\vdash -\lor- \coloneqq ind\text{-}bool(id_{bool}, const_{true})$}
+\end{prooftree}
+\subsection{Type theoretic proofs of the constructive tautologies}
+\subsubsection{Basic}
+\begin{prooftree}
+    \AxiomC{$\vdots$}
+    \UnaryInfC{$\Gamma \vdash P \times \lnot P \mathrel{type}$}
+    \UnaryInfC{$\Gamma, t:P \times \lnot P \vdash t:P \times \lnot P$}
+    \UnaryInfC{$\Gamma, t:P \times \lnot P \vdash pr_2(t):\lnot P$}
+    \UnaryInfC{$\Gamma, t:P \times \lnot P, p:P \vdash pr_2(t)(p):\emptyset$}
+    \AxiomC{$\vdots$}
+    \UnaryInfC{$\Gamma, t:P \times \lnot P \vdash pr_1(t):P$}
+    \BinaryInfC{$\Gamma, t:P \times \lnot P \vdash pr_2(t)(pr_1(t)):\emptyset$}
+    \UnaryInfC{$\Gamma \vdash \lambda t.pr_2(t)(pr_1(t)):\lnot(P \times \lnot P)$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\vdots$}
+    \UnaryInfC{$\Gamma \vdash P \leftrightarrow \lnot P \mathrel{type}$}
+    \UnaryInfC{$\Gamma, t:P \leftrightarrow \lnot P \vdash t:P \leftrightarrow \lnot P$}
+    \UnaryInfC{$\Gamma, t:P \leftrightarrow \lnot P \vdash pr_1(t):P \to \lnot P$}
+    \UnaryInfC{$\Gamma, t:P \leftrightarrow \lnot P, p:P \vdash pr_1(t)(p,p):\emptyset$}
+    \UnaryInfC{$\Gamma, t:P \leftrightarrow \lnot P \vdash \lambda p. pr_1(t)(p,p):\lnot P$}
+    \UnaryInfC{$\Gamma, t:P \leftrightarrow \lnot P \vdash \hat{p} \coloneqq \lambda p. pr_1(t)(p,p):\lnot P$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{\vdots}
+    \UnaryInfC{$\Gamma, t:P \leftrightarrow \lnot P \vdash pr_2(t):\lnot P \to P$}
+    \UnaryInfC{$\Gamma, t:P \leftrightarrow \lnot P, \tilde{p}:\lnot P \vdash pr_2(t)(\tilde{p}):P$}
+    \AxiomC{\vdots}
+    \UnaryInfC{$\Gamma, t:P \leftrightarrow \lnot P \vdash \hat{p}:\lnot P$}
+    \BinaryInfC{$\Gamma, t:P \leftrightarrow \lnot P \vdash pr_2(t)(\hat{p}):P$}
+    \UnaryInfC{$\Gamma, t:P \leftrightarrow \lnot P \vdash \hat{p}(pr_2(t)(\hat{p})):\emptyset$}
+    \UnaryInfC{$\Gamma \vdash \lambda t.\hat{p}(pr_2(t)(\hat{p})):\lnot(P \leftrightarrow \lnot P)$}
+\end{prooftree}
+\subsubsection{Double negation monad}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash P \mathrel{type}$}
+    \UnaryInfC{$\Gamma, p:P \vdash p:P$}
+    \AxiomC{$\Gamma \vdash \lnot P \mathrel{type}$}
+    \UnaryInfC{$\Gamma, \tilde{p}:\lnot P \vdash \tilde{p}:\lnot P$}
+    \BinaryInfC{$\Gamma, p: P, \tilde{p}:\lnot P \vdash \tilde{p}(p):\emptyset$}
+    \UnaryInfC{$\Gamma \vdash \lambda p.\lambda \tilde{p}.\tilde{p}(p):P \to \lnot\lnot P$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash P \to Q \mathrel{type}$}
+    \UnaryInfC{$\Gamma, f:P \to Q \vdash f:P \to Q$}
+    \AxiomC{$\Gamma \vdash \lnot Q \mathrel{type}$}
+    \UnaryInfC{$\Gamma, \tilde{q}:\lnot Q \vdash \tilde{q}:\lnot Q$}
+    \BinaryInfC{$\Gamma, f:P \to Q, \tilde{q}:\lnot Q \vdash \tilde{q} \circ f:\lnot P$}
+    \AxiomC{$\Gamma \vdash \lnot\lnot P \mathrel{type}$}
+    \UnaryInfC{$\Gamma, p:\lnot\lnot P \vdash p:\lnot\lnot P$}
+    \BinaryInfC{$\Gamma, f:P \to Q, p:\lnot\lnot P, \tilde{q}:\lnot Q \vdash p(\tilde{q} \circ f):\emptyset$}
+    \UnaryInfC{$\Gamma \vdash \lambda f.\lambda p.\lambda\tilde{q}.p(\tilde{q} \circ f):(P \to Q) \to (\lnot\lnot P \to \lnot\lnot Q)$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash P \to \lnot\lnot Q \mathrel{type}$}
+    \UnaryInfC{$\Gamma, f:P \to \lnot\lnot Q \vdash f:P \to \lnot\lnot Q$}
+    \UnaryInfC{$\Gamma, f:P \to \lnot\lnot Q \vdash swap(f): \lnot Q \to P \to \emptyset$}
+    \AxiomC{$\Gamma \vdash \lnot Q \mathrel{type}$}
+    \UnaryInfC{$\Gamma, \tilde{q}:\lnot Q \vdash \tilde{q}:\lnot Q$}
+    \BinaryInfC{$\Gamma, f:P \to \lnot\lnot Q, \tilde{q}:\lnot Q \vdash swap(f)(\tilde{q}):\lnot P$}
+    \AxiomC{$\Gamma \vdash \lnot\lnot P \mathrel{type}$}
+    \UnaryInfC{$\Gamma, p:\lnot\lnot P \vdash p:\lnot\lnot P$}
+    \BinaryInfC{$\Gamma, f:P \to \lnot\lnot Q, p:\lnot\lnot P, \tilde{q}:\lnot Q \vdash p(swap(f)(\tilde{q})):\emptyset$}
+    \UnaryInfC{$\Gamma \vdash p(swap(f)(\tilde{q})):(P \to \lnot\lnot Q) \to (\lnot\lnot P \to \lnot\lnot Q)$}
+\end{prooftree}
+\subsubsection{Double negation of classical laws}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash \lnot(\lnot\lnot P \to P) \mathrel{type}$}
+    \UnaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P) \vdash u:\lnot(\lnot\lnot P \to P)$}
+    \AxiomC{$\Gamma \vdash P \mathrel{type}$}
+    \UnaryInfC{$\Gamma, p:P \vdash p:P$}
+    \AxiomC{$\Gamma \vdash \lnot\lnot P \mathrel{type}$}
+    \BinaryInfC{$\Gamma, p:P \vdash const_p:\lnot\lnot P \to P$}
+    \BinaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P), p:P \vdash u(const_p):\emptyset$}
+    \UnaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P) \vdash \lambda p.u(const_p):\lnot P$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\vdots$}
+    \UnaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P) \vdash \lambda p.u(const_p):\lnot P$}
+    \AxiomC{$\Gamma \vdash \lnot\lnot P \mathrel{type}$}
+    \UnaryInfC{$\Gamma, \hat{p}:\lnot\lnot P \vdash \hat{p}:\lnot\lnot P$}
+    \BinaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P), \hat{p}:\lnot\lnot P \vdash \hat{p}(\lambda p.u(const_p)):\emptyset$}
+    \UnaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P), \hat{p}:\lnot\lnot P \vdash ind_\emptyset(\hat{p}(\lambda p.u(const_p))):P$}
+    \UnaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P) \vdash \lambda \hat{p}.ind_\emptyset(\hat{p}(\lambda p.u(const_p))):\lnot\lnot P \to P$}
+    \UnaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P) \vdash k \coloneqq \lambda \hat{p}.ind_\emptyset(\hat{p}(\lambda p.u(const_p))):\lnot\lnot P \to P$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash \lnot(\lnot\lnot P \to P) \mathrel{type}$}
+    \UnaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P) \vdash u:\lnot(\lnot\lnot P \to P)$}
+    \AxiomC{$\vdots$}
+    \UnaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P) \vdash k:\lnot\lnot P \to P$}
+    \BinaryInfC{$\Gamma, u:\lnot(\lnot\lnot P \to P) \vdash u(k):\emptyset$}
+    \UnaryInfC{$\Gamma \vdash \lambda u.u(k):\lnot\lnot(\lnot\lnot P \to P)$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash P \mathrel{type}$}
+    \UnaryInfC{$\Gamma, p:P \vdash p:P$}
+    \AxiomC{$\Gamma \vdash (P \to Q) \to P \mathrel{type}$}
+    \BinaryInfC{$\Gamma, p:P \vdash const_p:((P \to Q) \to P) \to P$}
+    \AxiomC{$\Gamma \vdash \lnot(((P \to Q) \to P) \to P) \mathrel{type}$}
+    \UnaryInfC{$\Gamma, u:\lnot(((P \to Q) \to P) \to P) \vdash u:\lnot(((P \to Q) \to P) \to P)$}
+    \UnaryInfC{$\Gamma, u:\lnot(((P \to Q) \to P) \to P), p:P \vdash u:\lnot(((P \to Q) \to P) \to P)$}
+    \BinaryInfC{$\Gamma, u:\lnot(((P \to Q) \to P) \to P), p:P \vdash u(const_p):\emptyset$}
+    \UnaryInfC{$\Gamma, u:\lnot(((P \to Q) \to P) \to P), p:P \vdash ind_\emptyset(u(const_p)):Q$}
+    \UnaryInfC{$\Gamma, u:\lnot(((P \to Q) \to P) \to P) \vdash \lambda p.ind_\emptyset(u(const_p)):P \to Q$}
+    \UnaryInfC{$\Gamma, u:\lnot(((P \to Q) \to P) \to P) \vdash k \coloneqq \lambda p.ind_\emptyset(u(const_p)):P \to Q$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\Gamma \vdash (P \to Q) \to P \mathrel{type}$}
+    \UnaryInfC{$\Gamma, f:(P \to Q) \to P \vdash f:(P \to Q) \to P$}
+    \AxiomC{$\vdots$}
+    \UnaryInfC{$\Gamma, u:\lnot(((P \to Q) \to P) \to P) \vdash k:P \to Q$}
+    \BinaryInfC{$\Gamma, u:\lnot(((P \to Q) \to P) \to P), f:(P \to Q) \to P \vdash f(k):P$}
+    \UnaryInfC{$\Gamma, u:\lnot(((P \to Q) \to P) \to P) \vdash \lambda f.f(k):((P \to Q) \to P) \to P$}
+    \UnaryInfC{$\Gamma, u:\lnot(((P \to Q) \to P) \to P) \vdash u(\lambda f.f(k)):\emptyset$}
+    \UnaryInfC{$\Gamma \vdash \lambda u.u(\lambda f.f(k)):\lnot\lnot(((P \to Q) \to P) \to P)$}
+\end{prooftree}
+\par
+Assume $u:\lnot((P \to Q) + (Q \to P))$:\\
+Assume $q : Q$. There is $const_q : P \to Q$. Then $inl(const_q):(P \to Q) + (Q \to P)$. And $u(inl(const_q)):\emptyset$.\\
+So, $\lambda q.ind_\emptyset(u(inl(const_q))):Q \to P$.\\
+Then $inr(\lambda q.ind_\emptyset(u(inl(const_q)))):(P \to Q) + (Q \to P)$. And $u(inr(\lambda q.ind_\emptyset(u(inl(const_q))))):\emptyset$.\\
+Finally, $\lambda u.u(inr(\lambda q.ind_\emptyset(u(inl(const_q))))):\lnot\lnot((P \to Q) + (Q \to P))$.
+
+\par\vspace{1em}
+Assume $u:\lnot(P+\lnot P)$:\\
+Assume $p:P$. Then, we have $inl(p):P+\lnot P$. So $\lambda p.u(inl(p)):\lnot P$.\\
+Let $inr(\lambda p.u(inl(p))):P + \lnot P$. Finally, $\lambda u.u(inr(\lambda p.u(inl(p)))):\lnot\lnot(P + \lnot P)$.
+\subsubsection{Show that}
+\par
+Assume $em:P+\lnot P$ and $t:\lnot\lnot P$:\\
+Then $ind_+(id_P,\lambda \tilde{p}.ind_\emptyset(t(\tilde{p})),em):P$.\\
+Finally, $dne \coloneqq\lambda em.\lambda t.ind_+(id_P,\lambda \tilde{p}.ind_\emptyset(t(\tilde{p})),em):(P+\lnot P) \to(\lnot\lnot P \to P)$.
+
+\par\vspace{1em}
+Split into two cases:\\
+Case 1, $\lnot\lnot(Q \to P) \to (P + \lnot P) \to (Q \to P)$:\\
+Assume $u:\lnot\lnot(Q \to P)$, $em:(P + \lnot P)$ and $q:Q$:\\
+In $em$, if $p:P$ then $\lambda q.p:Q \to P$, else $\tilde{p}:\lnot P$ then:\\
+Assume $f:Q \to P$ then $\lambda f.\tilde{p}(f(q)):\lnot(P \to Q)$.\\
+So, $ind_\emptyset(u(\lambda f.\tilde{p}(f(q)))):P$ then $\lambda q.ind_\emptyset(u(\lambda f.\tilde{p}(f(q)))):Q \to P$\\
+Finally, $\lambda u.\lambda em.ind_+(\lambda p.const_p,\lambda \tilde{p}.\lambda q.ind_\emptyset(u(\lambda f.\tilde{p}(f(q)))),em):\lnot\lnot(Q \to P) \to (P + \lnot P) \to (Q \to P)$\\
+Case 2, $((P + \lnot P) \to (Q \to P)) \to \lnot\lnot(Q \to P)$:
+$$
+    \lambda f.\lambda u.u(f(inr(\lambda p.u(f(inl(p)))))):((P + \lnot P) \to (Q \to P)) \to \lnot\lnot(Q \to P)
+$$
+\subsubsection{Double negation stable}
+\par
+Assume $t:\lnot\lnot\lnot P$ and $p:P$:\\
+We have $\lambda u.u(p):\lnot\lnot P$. Then $t(\lambda u.u(p)):\emptyset$.\\
+Finally, $\lambda t.\lambda p.t(\lambda u.u(p)):\lnot\lnot\lnot P \to \lnot P.$
+
+\vspace{1em}\par
+Assume $t:\lnot\lnot(P \to \lnot\lnot Q)$, $p:P$, $u:\lnot Q$, and $v:P \to \lnot\lnot Q$:\\
+Then $\lambda v.v(p, u):\lnot(P \to \lnot\lnot Q)$.\\
+Finally, $\lambda t.\lambda p.t(\lambda v.v(p, u)):\lnot\lnot (P \to \lnot\lnot Q) \to (P \to \lnot\lnot Q)$
+
+\vspace{1em}\par
+Assume $t:\lnot\lnot((\lnot\lnot P) \times (\lnot\lnot Q))$, $u:\lnot P$:\\
+Assume $v:(\lnot\lnot P) \times (\lnot\lnot Q)$:\\
+Then $\lambda v.pr_1(v)(u):\lnot((\lnot\lnot P) \times (\lnot\lnot Q))$.\\
+Analogously, $\lambda w.t(\lambda v.pr_2(v)(w)):\lnot\lnot Q$.\\
+Finally, $\lambda t.(\lambda u.t(\lambda v.pr_1(v)(u)),\lambda w.t(\lambda v.pr_2(v)(w))):\lnot\lnot((\lnot\lnot P) \times (\lnot\lnot Q)) \to ((\lnot\lnot P) \times (\lnot\lnot Q))$
+
+\subsubsection{Show that}
+Split into 2 cases:\\
+Case 1: $\lnot\lnot(P \times Q) \to (\lnot\lnot P) \times (\lnot\lnot Q)$.\\
+Assume $t:\lnot\lnot(P \times Q)$, $u:\lnot P$ and $v:P \times Q$.\\
+Then $\lambda v.u(pr_1(v)):\lnot(P \times Q)$.\\
+So, $\lambda u.t(\lambda v.u(pr_1(v))):\lnot\lnot P$.\\
+Analogously, $\lambda w.t(\lambda v.w(pr_2(v))):\lnot\lnot Q$.\\
+Finally, $\lambda t.(\lambda u.t(\lambda v.u(pr_1(v))),\lambda w.t(\lambda v.w(pr_2(v)))):\lnot\lnot(P \times Q) \to (\lnot\lnot P) \times (\lnot\lnot Q)$.\\
+Case 2: $(\lnot\lnot P) \times (\lnot\lnot Q) \to \lnot\lnot(P \times Q)$.\\
+Assume $t:(\lnot\lnot P) \times (\lnot\lnot Q)$ and $u:\lnot(P \times Q)$.\\
+Assume $p:P$ and $q:Q$, then $u(p,q):\emptyset$, so $\lambda q.u(p, q):\lnot Q$.\\
+Then $\lambda p.pr_2(t)(\lambda q.u(p, q)):\lnot P$.\\
+Then $pr_1(\lambda p.pr_2(t)(\lambda q.u(p, q))):\emptyset$.\\
+Finally, $\lambda t.\lambda u.pr_1(\lambda p.pr_2(t)(\lambda q.u(p, q))):(\lnot\lnot P) \times (\lnot\lnot Q) \to \lnot\lnot(P \times Q)$.\\
+
+\vspace{1em}\par
+Split into 2 cases:\\
+Case 1: $\lnot\lnot(P + Q) \to \lnot(\lnot P \times \lnot Q)$.\\
+Assume $t:\lnot\lnot(P + Q)$ and $u:\lnot P \times \lnot Q$.\\
+Assume $v:P + Q$ then $\lambda v.ind_+(pr_1(u),pr_2(u),v):\lnot(P + Q)$.\\
+Finally, $\lambda t.\lambda u.t(\lambda v.ind_+(pr_1(u),pr_2(u),v)):\lnot\lnot(P + Q) \to \lnot(\lnot P \times \lnot Q)$.\\
+Case 2: $\lnot(\lnot P \times \lnot Q) \to \lnot\lnot(P + Q)$.\\
+Assume $t:\lnot(\lnot P \times \lnot Q)$ and $u:\lnot(P + Q)$.\\
+Assume $p:P$ then $\lambda p.u(inl(p)):\lnot P$.\\
+Assume $q:Q$ then $\lambda q.u(inr(q)):\lnot Q$.\\
+Finally $\lambda t.\lambda u.t(\lambda p.u(inl(p)), \lambda q.u(inr(q))):\lnot(\lnot P \times \lnot Q) \to \lnot\lnot(P + Q)$.\\
+
+\vspace{1em}\par
+Split into 2 cases:\\
+Case 1: $\lnot\lnot (P \to Q) \to (\lnot\lnot P \to \lnot\lnot Q)$.\\
+Assume $t:\lnot\lnot(P \to Q)$, $u:\lnot\lnot P$ and $v:\lnot Q$.\\
+Assume $w:P \to Q$ and $p:P$ then $\lambda p.v(w(p)):\lnot P$.\\
+Then $\lambda w.u(\lambda p.v(w(p))):\lnot(P \to Q)$.\\
+Finally, $\lambda t.\lambda u. \lambda v.t(\lambda w.u(\lambda p.v(w(p)))):\lnot\lnot (P \to Q) \to (\lnot\lnot P \to \lnot\lnot Q)$.\\
+Case 2: $(\lnot\lnot P \to \lnot\lnot Q) \to \lnot\lnot (P \to Q)$.\\
+Assume $t:\lnot\lnot P \to \lnot\lnot Q$ and $u:\lnot (P \to Q)$.\\
+Assume $v:\lnot P$. We have $ind_\emptyset:\emptyset \to Q$ then $ind_\emptyset \circ v:P \to Q$.\\
+Then $\lambda v.u(ind_\emptyset \circ v):\lnot\lnot P$.\\
+Assume $q:Q$ then $\lambda q.u(const_q):\lnot Q$.\\
+Finally, $\lambda t.\lambda u.t(\lambda v.u(ind_\emptyset \circ v),\lambda q.u(const_q)):(\lnot\lnot P \to \lnot\lnot Q) \to \lnot\lnot (P \to Q)$.
+
+\subsection{List types}
+\subsubsection{Induction principle and the computation rules}
+\begin{prooftree}
+    \AxiomC{$\Gamma, l:list(A) \vdash P(l) \mathrel{type}$}
+    \AxiomC{$\Gamma \vdash p_{nil}:P(nil)$}
+    \AxiomC{$\Gamma \vdash p_{cons}:\prod_{(a:A)}\prod_{l:list(A)}P(l) \to P(cons(a,l))$}
+    \TrinaryInfC{$\Gamma \vdash ind\text{-}list(p_{nil},p_{cons}):\prod_{(l:list(A))}P(l)$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\Gamma, l:list(A) \vdash P(l) \mathrel{type}$}
+    \AxiomC{$\Gamma \vdash p_{nil}:P(nil)$}
+    \AxiomC{$\Gamma \vdash p_{cons}:\prod_{(a:A)}\prod_{l:list(A)}P(l) \to P(cons(a,l))$}
+    \TrinaryInfC{$\Gamma \vdash ind\text{-}list(p_{nil},p_{cons},nil) \doteq p_{nil}:P(l)$}
+\end{prooftree}
+\begin{prooftree}
+    \AxiomC{$\Gamma, l:list(A) \vdash P(l) \mathrel{type}$}
+    \AxiomC{$\Gamma \vdash p_{nil}:P(nil)$}
+    \AxiomC{$\Gamma \vdash p_{cons}:\prod_{(a:A)}\prod_{l:list(A)}P(l) \to P(cons(a,l))$}
+    \TrinaryInfC{$\Gamma \vdash ind\text{-}list(p_{nil},p_{cons},cons(a,l)) \doteq p_{cons}(a,l,ind\text{-}list(p_{nil},p_{cons},l)):P(l)$}
+\end{prooftree}
+\subsubsection{Folding}
+\begin{align}
+    fold\text{-}list(\mu,nil) &\coloneqq b \\
+    fold\text{-}list(\mu,cons(a,l)) &\coloneqq \mu(a,fold\text{-}list(\mu,l))
+\end{align}
+$$
+    fold\text{-}list \coloneqq \lambda\mu.ind\text{-}list(b,\lambda a.\lambda l.\lambda c.\mu(a,c))
+$$
+\subsubsection{Maping}
+\begin{align}
+    map\text{-}list(\mu,nil) &\coloneqq nil\\
+    map\text{-}list(\mu,cons(a,l)) &\coloneqq cons(\mu(a), map\text{-}list(\mu,l))
+\end{align}
+$$
+    map\text{-}list \coloneqq \lambda \mu.ind\text{-}list(nil,\lambda a.\lambda l. \lambda c.cons(\mu(a),c))
+$$
+\subsubsection{Length}
+\begin{align}
+    length\text{-}list(nil) &\coloneqq 0_\mathbb{N}\\
+    length\text{-}list(cons(a,l)) &\coloneqq succ_\mathbb{N}(length\text{-}list(l))
+\end{align}
+$$
+    length\text{-}list \coloneqq ind\text{-}list(0_\mathbb{N},\lambda a.\lambda l. \lambda c.succ_\mathbb{N}(c))
+$$
+\subsubsection{Sum and product}
+$$
+    sum\text{-}list \coloneqq ind\text{-}list(0_\mathbb{N},\lambda a.\lambda l. \lambda c.a + c)
+$$
+$$
+    product\text{-}list \coloneqq ind\text{-}list(0_\mathbb{N},\lambda a.\lambda l. \lambda c.a \cdot c)
+$$
+\subsubsection{Concatenation}
+\begin{align}
+    concat\text{-}list(nil,l) &\coloneqq l\\
+    concat\text{-}list(cons(a,k),l) &\coloneqq cons(a,concat\text{-}list(k,l))
+\end{align}
+$$
+    concat\text{-}list \coloneqq ind\text{-}list(id_{list(A)},\lambda a.\lambda l.\lambda c.cons(a, c))
+$$
+\subsubsection{Flattening}
+\begin{align}
+    flatten\text{-}list(nil) &\coloneqq nil\\
+    flatten\text{-}list(cons(a,l)) &\coloneqq concat\text{-}list(a,flatten\text{-}list(l))
+\end{align}
+$$
+    flatten\text{-}list \coloneqq ind\text{-}list(nil,\lambda a.\lambda l.\lambda c.concat\text{-}list(a, c))
+$$
+\subsubsection{Reversion}
+\begin{align}
+    reverse\text{-}list(nil) &\coloneqq nil\\
+    reverse\text{-}list(cons(a,l)) &\coloneqq concat\text{-}list(reverse\text{-}list(l),cons(a,nil))
+\end{align}
+$$
+    reverse\text{-}list \coloneqq ind\text{-}list(nil,\lambda a.\lambda l.\lambda c.concat\text{-}list(c,cons(a,nil)))
+$$
+\section{Identity types}
+\end{document}
